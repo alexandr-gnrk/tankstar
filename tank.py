@@ -2,9 +2,6 @@ from operator import add
 
 
 class Tank():
-
-    DIRECTIONS = ([1, 0], [0, -1], [-1, 0], [0, 1])
-
     def __init__(self, pos, directon=None):
         self.pos = list(pos)
         self.directon = [1, 0] if directon is None else list(directon)
