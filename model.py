@@ -59,15 +59,18 @@ class Model():
         return False
 
     def update(self):
+        # eval actions
         for action in self.actions_map.values():
             action()
         
+        # move tanks
         for tank in self.tanks:
             for obstacle in self.obstacles:
                 if tank.pos == obstacle.pos:
                     last_backward_arg = self.actions_map[tank].args[0] 
                     tank.move(not last_backward_arg)
 
+        # move projctiles
         for projectile in self.projectiles:
             for obstacle in self.obstacles:
                 if projectile.pos == obstacle.pos:
@@ -83,7 +86,9 @@ class Model():
                         projectile.pos == second_projectile.pos:
                     self.projectile.remove(projectile)
                     self.projectiles.remove(second_projectile)
-
+        
+        # remove all actions and actions to move projectiles in the
+        # next update call
         self.actions_map.clear()
         for projectile in self.projectiles:
             self.add_move_action(projectile)
@@ -104,7 +109,8 @@ class Model():
         os.system('clear')
         def to_char(obj):
             if obj is None:
-                return '◦'
+                # return '◦'
+                return ' '
             elif isinstance(obj, Obstacle):
                 return '▩'
             elif isinstance(obj, Projectile):
