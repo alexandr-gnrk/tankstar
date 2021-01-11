@@ -5,17 +5,21 @@ import keyboard
 from model import Model
 
 
-model = Model((8, 8))
+model = Model()
 while True:
     if keyboard.is_pressed('up'):
-        model.move(model.player)
+        model.add_move_action(model.player)
     elif keyboard.is_pressed('down'):
-        model.move(model.player, backward=True)
+        model.add_move_action(model.player, backward=True)
     elif keyboard.is_pressed('right'):
-        model.turn(model.player)
+        model.add_turn_action(model.player)
     elif keyboard.is_pressed('left'):
-        model.turn(model.player, ACW=True)
+        model.add_turn_action(model.player, ACW=True)
+    elif keyboard.is_pressed('space'):
+        model.add_shoot_action(model.player)
     elif keyboard.is_pressed('q'):
         break
+
+    model.update()
     model.dump()
     time.sleep(1/10)
