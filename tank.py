@@ -22,9 +22,10 @@ class Tank(GameObject):
             self.pos = self.add_lists(self.pos, self.direction)
 
     def shoot(self):
-        proj = Projectile(self.pos, self.direction)
-        proj.move()
-        return proj
+        # proj = Projectile(self.pos, self.direction)
+        # proj.move()
+        # return proj
+        pass
 
     def next_update_pos(self):
         return self.add_lists(self.pos, self.direction)
@@ -120,10 +121,13 @@ class FrontTank(AITank):
                     self.player_tank.pos, 
                     matrix)
 
+            print('From', self.pos, 'to', end_pos)
             next_pos = AStar(
                 self.pos, 
                 end_pos, 
-                self.covert_to_binary_matrix(matrix)).solve()[0]
+                self.covert_to_binary_matrix(matrix)).solve()
+            print('Trace', next_pos)
+            next_pos = next_pos[0]
 
             self.next_update_action = self.get_action_according_next_pos(
                 next_pos)

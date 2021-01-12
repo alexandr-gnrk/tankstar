@@ -20,17 +20,30 @@ class Model():
         [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ]
+    FIELD_TEMPLATE = [
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    ]
+        
+
 
     def __init__(self):
         # create an empty field
         self.size = (len(self.FIELD_TEMPLATE), len(self.FIELD_TEMPLATE[0]))
         self.field = [[None] * self.size[0] for _ in range(self.size[1])]
-        
-        self.player = PlayerTank([1, 1])
+        self.player = PlayerTank([4, 1])
         self.obstacles = self.make_obstacles_from_template(self.FIELD_TEMPLATE)
         self.tanks = [
             self.player,
-            FrontTank([1, 7])
+            FrontTank([4, 7])
         ]
         self.projectiles = list()
         self.update_field_state()
@@ -94,12 +107,13 @@ class Model():
 
         for projectile in self.projectiles: projectile.make_action()
 
+        self.update_field_state()
+
         # remove all actions and actions to move projectiles in the
         # next update call
         for tank in self.tanks: tank.choose_next_update_action(self.field)
         for projectile in self.projectiles: projectile.choose_next_update_action(self.field)
 
-        self.update_field_state()
 
         self.projectiles.extend(new_projectiles)
 
