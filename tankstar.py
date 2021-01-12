@@ -22,4 +22,4 @@ while True:
 
     model.update()
     model.dump()
-    time.sleep(1)
+    time.sleep(1/5)

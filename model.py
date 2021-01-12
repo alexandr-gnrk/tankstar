@@ -57,13 +57,12 @@ class Model():
 
     def update(self):
         # eval actions
+        new_projectiles = list()
         for tank in self.tanks:
             obj = tank.make_action()
             if obj is not None:
-                self.projectiles.append(obj)
+                new_projectiles.append(obj)
 
-        for projectile in self.projectiles: projectile.make_action()
-        
         # move tanks
         for tank in self.tanks:
             for obstacle in self.obstacles:
@@ -73,27 +72,36 @@ class Model():
 
         # move projctiles
         for projectile in self.projectiles:
+            positions = [
+                projectile.pos, 
+                projectile.move_pos_by_delta(
+                    projectile.pos,
+                    projectile.direction)]
             for obstacle in self.obstacles:
-                if projectile.pos == obstacle.pos:
+                if obstacle.pos in positions:
                     self.projectiles.remove(projectile)
 
             for tank in self.tanks:
-                if projectile.pos == tank.pos:
+                if tank.pos in positions:
                     self.tanks.remove(tank)
                     self.projectiles.remove(projectile)
 
             for second_projectile in self.projectiles:
                 if projectile is not second_projectile and \
-                        projectile.pos == second_projectile.pos:
+                        second_projectile.pos in positions:
                     self.projectile.remove(projectile)
                     self.projectiles.remove(second_projectile)
-        
+
+        for projectile in self.projectiles: projectile.make_action()
+
         # remove all actions and actions to move projectiles in the
         # next update call
         for tank in self.tanks: tank.choose_next_update_action(self.field)
         for projectile in self.projectiles: projectile.choose_next_update_action(self.field)
 
         self.update_field_state()
+
+        self.projectiles.extend(new_projectiles)
 
     def add_move_action(self, obj, backward=False):
         obj.next_update_action = functools.partial(obj.move, backward=backward)
