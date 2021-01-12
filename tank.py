@@ -24,10 +24,10 @@ class Tank(GameObject):
             self.pos = self.add_lists(self.pos, self.direction)
 
     def shoot(self):
-        # proj = Projectile(self.pos, self.direction)
-        # proj.move()
-        # return proj
-        pass
+        proj = Projectile(self.pos, self.direction)
+        proj.move()
+        return proj
+        # pass
 
     def next_update_pos(self):
         return self.add_lists(self.pos, self.direction)
@@ -75,6 +75,17 @@ class AITank(Tank):
 
         return new_matrix
 
+    def is_on_shooting_line(self, obj, matrix):
+        next_pos = self.add_lists(self.pos, self.direction)
+
+        while matrix[next_pos[0]][next_pos[1]] is None:
+            next_pos = self.add_lists(next_pos, self.direction)
+
+        if matrix[next_pos[0]][next_pos[1]] is obj:
+            return True
+        return False
+
+
     def get_turn_action(self, new_direction):
         if self.rotate_direction(self.direction) == new_direction:
             return partial(self.turn, ACW=False)
@@ -112,6 +123,11 @@ class AITank(Tank):
             return
 
         player_tank = self.find_player(matrix)
+
+        if self.is_on_shooting_line(player_tank, matrix):
+            if random.choices([True, False], [50, 50], k=1)[0]:
+                self.next_update_action = self.get_shoot_action()
+                return
 
         manhattan_distance_to_target = \
             abs(player_tank.pos[0] - self.pos[0]) + \

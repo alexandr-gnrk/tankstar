@@ -104,7 +104,7 @@ class Model():
             for second_projectile in self.projectiles:
                 if projectile is not second_projectile and \
                         second_projectile.pos in positions:
-                    self.projectile.remove(projectile)
+                    self.projectiles.remove(projectile)
                     self.projectiles.remove(second_projectile)
 
         for projectile in self.projectiles: projectile.make_action()

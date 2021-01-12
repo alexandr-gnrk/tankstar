@@ -33,7 +33,6 @@ class AStar():
         self.start_pos = tuple(start_pos)
         self.end_pos = tuple(end_pos)
         self.matrix = copy.deepcopy(matrix)
-        # self.firing_positions = self.get_firing_positions(self.start_pos)
 
     def solve(self, full_path=False):
         queue = PriorityQueue()
@@ -74,10 +73,6 @@ class AStar():
 
         return traversal
 
-    # @classmethod
-    # def heuristic(cls, pos1, pos2):
-        
-
     @classmethod
     def manhattan_distance(cls, pos1, pos2):
         return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
@@ -90,15 +85,3 @@ class AStar():
                 neighbors.append(neighbor)
 
         return neighbors
-
-    # @classmethod
-    # def get_firing_positions(cls, pos):
-    #     positions = list()
-    #     for diff in cls.DIRECTIONS:
-    #         next_pos = tuple(map(add, pos, diff))
-
-    #         while self.matrix[next_pos[0]][next_pos[1]] == 0:
-    #             positions.append(next_pos)
-    #             next_pos = tuple(map(add, pos, diff))
-
-    #     return positions
