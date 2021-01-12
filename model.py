@@ -1,9 +1,7 @@
 import os
 import functools
 
-import pygame
-
-from tank import Tank
+from tank import Tank, PlayerTank, FrontTank
 from obstacle import Obstacle
 from projectile import Projectile
 
@@ -28,15 +26,14 @@ class Model():
         self.size = (len(self.FIELD_TEMPLATE), len(self.FIELD_TEMPLATE[0]))
         self.field = [[None] * self.size[0] for _ in range(self.size[1])]
         
-        self.player = Tank([1, 1])
+        self.player = PlayerTank([1, 1])
         self.obstacles = self.make_obstacles_from_template(self.FIELD_TEMPLATE)
         self.tanks = [
             self.player,
-            Tank([1, 7])
+            FrontTank([1, 7])
         ]
         self.projectiles = list()
-
-        self.actions_map = dict()
+        self.update_field_state()
 
     def make_obstacles_from_template(self, template):
         obstacles = list()
@@ -60,14 +57,18 @@ class Model():
 
     def update(self):
         # eval actions
-        for action in self.actions_map.values():
-            action()
+        for tank in self.tanks:
+            obj = tank.make_action()
+            if obj is not None:
+                self.projectiles.append(obj)
+
+        for projectile in self.projectiles: projectile.make_action()
         
         # move tanks
         for tank in self.tanks:
             for obstacle in self.obstacles:
                 if tank.pos == obstacle.pos:
-                    last_backward_arg = self.actions_map[tank].args[0] 
+                    last_backward_arg = tank.next_update_action.keywords['backward']
                     tank.move(not last_backward_arg)
 
         # move projctiles
@@ -89,24 +90,22 @@ class Model():
         
         # remove all actions and actions to move projectiles in the
         # next update call
-        self.actions_map.clear()
-        for projectile in self.projectiles:
-            self.add_move_action(projectile)
+        for tank in self.tanks: tank.choose_next_update_action(self.field)
+        for projectile in self.projectiles: projectile.choose_next_update_action(self.field)
 
         self.update_field_state()
 
     def add_move_action(self, obj, backward=False):
-        self.actions_map[obj] = functools.partial(obj.move, backward)
+        obj.next_update_action = functools.partial(obj.move, backward=backward)
 
-    def add_turn_action(self, tank, ACW=False):
-        self.actions_map[tank] = functools.partial(tank.turn, ACW)
+    def add_turn_action(self, obj, ACW=False):
+        obj.next_update_action = functools.partial(obj.turn, ACW=ACW)
 
-    def add_shoot_action(self, tank):
-        def shoot(tank): self.projectiles.append(tank.shoot())
-        self.actions_map[tank] = functools.partial(shoot, tank)
+    def add_shoot_action(self, obj):
+        obj.next_update_action = functools.partial(obj.shoot)
 
     def dump(self):
-        os.system('clear')
+        # os.system('clear')
         def to_char(obj):
             if obj is None:
                 # return '◦'
@@ -116,13 +115,13 @@ class Model():
             elif isinstance(obj, Projectile):
                 return '●'
             elif isinstance(obj, Tank):
-                if obj.directon == [1, 0]:
+                if obj.direction == [1, 0]:
                     return '▼'
-                elif obj.directon == [-1, 0]:
+                elif obj.direction == [-1, 0]:
                     return '▲'
-                elif obj.directon == [0, -1]:
+                elif obj.direction == [0, -1]:
                     return '◀'
-                elif obj.directon == [0, 1]:
+                elif obj.direction == [0, 1]:
                     return '▶'
             raise Exception()
 
@@ -130,3 +129,4 @@ class Model():
             for j in range(self.size[1]):
                 print(to_char(self.field[i][j]), end=' ')
             print()
+        print(self.tanks[-1].next_update_action)
