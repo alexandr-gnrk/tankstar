@@ -69,19 +69,28 @@ class AITank(Tank):
 
     def define_action(self, next_pos, target_pos):
         # delta_pos = list(map(operator.sub, self.pos, pos))
-        print("If move:", self.move_pos_by_delta(self.pos, self.direction))
-        if self.move_pos_by_delta(self.pos, self.direction) == list(next_pos):
-            return partial(self.move, backward=False)
+        if next_pos is not None:
+            if self.move_pos_by_delta(self.pos, self.direction) == list(next_pos):
+                return partial(self.move, backward=False)
 
-        antidirection = [-self.direction[0], -self.direction[1]]
-        if self.move_pos_by_delta(self.pos, antidirection) == list(next_pos):
-            return partial(self.move, backward=True)
+            antidirection = [-self.direction[0], -self.direction[1]]
+            if self.move_pos_by_delta(self.pos, antidirection) == list(next_pos):
+                return partial(self.move, backward=True)
 
-        delta_pos = list(map(operator.sub, next_pos, self.pos))
-        if self.rotate_direction(self.direction) == delta_pos:
-            return partial(self.turn, ACW=False)
-        elif self.rotate_direction(self.direction, ACW=True) == delta_pos:
-            return partial(self.turn, ACW=True)
+            delta_pos = list(map(operator.sub, next_pos, self.pos))
+            if self.rotate_direction(self.direction) == delta_pos:
+                return partial(self.turn, ACW=False)
+            elif self.rotate_direction(self.direction, ACW=True) == delta_pos:
+                return partial(self.turn, ACW=True)
+        else:
+            if self.move_pos_by_delta(self.pos, self.direction) == list(target_pos):
+                return partial(self.shoot)
+
+            delta_pos = list(map(operator.sub, target_pos, self.pos))
+            if self.rotate_direction(self.direction) == delta_pos:
+                return partial(self.turn, ACW=False)
+            elif self.rotate_direction(self.direction, ACW=True) == delta_pos:
+                return partial(self.turn, ACW=True)
 
         raise Exception('No possible action found')
 
