@@ -66,17 +66,18 @@ class AITank(Tank):
                     new_matrix[-1].append(1)
 
         return new_matrix 
-        
-    def define_action_according_next_pos(self, next_pos):
+
+    def define_action(self, next_pos, target_pos):
         # delta_pos = list(map(operator.sub, self.pos, pos))
-        if self.move_pos_by_delta(self.pos, self.direction) == next_pos:
+        print("If move:", self.move_pos_by_delta(self.pos, self.direction))
+        if self.move_pos_by_delta(self.pos, self.direction) == list(next_pos):
             return partial(self.move, backward=False)
 
         antidirection = [-self.direction[0], -self.direction[1]]
-        if self.move_pos_by_delta(self.pos, antidirection):
+        if self.move_pos_by_delta(self.pos, antidirection) == list(next_pos):
             return partial(self.move, backward=True)
 
-        delta_pos = list(map(operator.sub, pos, self.pos))
+        delta_pos = list(map(operator.sub, next_pos, self.pos))
         if self.rotate_direction(self.direction) == delta_pos:
             return partial(self.turn, ACW=False)
         elif self.rotate_direction(self.direction, ACW=True) == delta_pos:
@@ -89,21 +90,26 @@ class FrontTank(AITank):
     def choose_next_update_action(self, matrix):
         self.player_tank = self.find_player(matrix)
         # find pos in front of player tank
-        target_pos = self.move_pos_by_delta(
+        end_pos = self.move_pos_by_delta(
             self.player_tank.pos,
             self.player_tank.direction)
-        if matrix[target_pos[0]][target_pos[1]] is not None:
-            target_pos = self.find_free_cell_around_pos(
+        if matrix[end_pos[0]][end_pos[1]] is not None:
+            end_pos = self.find_free_cell_around_pos(
                 self.player_tank.pos, 
                 matrix)
 
-        next_pos = AStar(
-            self.pos, 
-            target_pos, 
-            self.covert_to_binary_matrix(matrix)).solve()[0]
+        if self.pos != end_pos:
+            next_pos = AStar(
+                self.pos, 
+                end_pos, 
+                self.covert_to_binary_matrix(matrix)).solve()[0]
+        else:
+            next_pos = None
 
-        self.next_update_action = self.define_action_according_next_pos(
-            next_pos)
+        self.next_update_action = self.define_action(
+            next_pos,
+            self.player_tank.pos)
+
 
 
 
