@@ -1,7 +1,7 @@
 import os
 import functools
 
-from tank import Tank, PlayerTank, FrontTank
+from tank import Tank, PlayerTank, FrontTank, RearTank
 from obstacle import Obstacle
 from projectile import Projectile
 
@@ -43,7 +43,8 @@ class Model():
         self.obstacles = self.make_obstacles_from_template(self.FIELD_TEMPLATE)
         self.tanks = [
             self.player,
-            FrontTank([4, 7])
+            FrontTank([4, 7]),
+            RearTank([5, 7])
         ]
         self.projectiles = list()
         self.update_field_state()
@@ -127,7 +128,7 @@ class Model():
         obj.next_update_action = functools.partial(obj.shoot)
 
     def dump(self):
-        # os.system('clear')
+        os.system('clear')
         def to_char(obj):
             if obj is None:
                 # return '◦'
@@ -151,4 +152,4 @@ class Model():
             for j in range(self.size[1]):
                 print(to_char(self.field[i][j]), end=' ')
             print()
-        print(self.tanks[-1].next_update_action)
+        # print(self.tanks[-1].next_update_action)

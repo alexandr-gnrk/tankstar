@@ -35,7 +35,7 @@ class AStar():
         self.matrix = copy.deepcopy(matrix)
         # self.firing_positions = self.get_firing_positions(self.start_pos)
 
-    def solve(self):
+    def solve(self, full_path=False):
         queue = PriorityQueue()
         queue.put(self.start_pos, 0)
         from_map = dict()
@@ -64,7 +64,10 @@ class AStar():
     def get_traversal(self, from_map):
         traversal = list()
         traversal.append(self.end_pos)
-        previous_pos = from_map[self.end_pos]
+        previous_pos = from_map.get(self.end_pos, None)
+        if previous_pos is None:
+            return None
+
         while previous_pos != self.start_pos:
             traversal.insert(0, previous_pos)
             previous_pos = from_map[traversal[0]]
