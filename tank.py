@@ -59,7 +59,8 @@ class AITank(Tank):
             if matrix[possible_pos[0]][possible_pos[1]] is None:
                 return possible_pos
 
-        raise Exception('There is no free cell around')
+        # there is no free cell around
+        return None
 
     @classmethod
     def covert_to_binary_matrix(cls, matrix):
@@ -115,6 +116,10 @@ class AITank(Tank):
         manhattan_distance_to_target = \
             abs(player_tank.pos[0] - self.pos[0]) + \
             abs(player_tank.pos[1] - self.pos[1])
+        if isinstance(self, PrimitiveTank):
+            print(self.pos, player_tank.pos) 
+            print(manhattan_distance_to_target)
+
 
         if manhattan_distance_to_target == 1:
             if self.next_update_pos() == player_tank.pos:
@@ -122,13 +127,9 @@ class AITank(Tank):
             else:
                 new_direction = self.sub_lists(player_tank.pos, self.pos)
                 self.next_update_action = self.get_turn_action(new_direction)
+            print('dist is one')
         else:
-            end_pos = self.define_end_pos(player_tank, matrix)
-
-            next_pos = AStar(
-                self.pos, 
-                end_pos, 
-                self.covert_to_binary_matrix(matrix)).solve()[0]
+            next_pos = self.define_next_pos(player_tank, matrix)
 
             if next_pos is None:
                 self.next_update_action = self.get_random_action()
@@ -136,41 +137,78 @@ class AITank(Tank):
                 self.next_update_action = self.get_action_according_next_pos(
                     next_pos)
 
+        if isinstance(self, PrimitiveTank): print(self.next_update_action)
+
     @abstractmethod
-    def define_end_pos(self):
+    def define_next_pos(self):
         pass
 
+    def next_pos_to_player(self, player_tank, matrix, rear=False):
+        # find pos in front of player tank
+        if rear:
+            next_pos = self.sub_lists(
+                player_tank.pos,
+                player_tank.direction)
+        else:            
+            next_pos = self.add_lists(
+                player_tank.pos,
+                player_tank.direction)
+
+        next_cell = matrix[next_pos[0]][next_pos[1]]
+        if next_cell is not None:
+            next_pos = self.find_free_cell_around_pos(
+                player_tank.pos, 
+                matrix)
+            if next_pos is None:
+                return self.next_pos_primitive(player_tank, matrix)
+
+        trace = AStar(
+            self.pos, 
+            next_pos, 
+            self.covert_to_binary_matrix(matrix)).solve()
+
+        if trace is None:
+            return self.next_pos_primitive(player_tank, matrix)
+        else:
+            return trace[0]
+
+    def next_pos_primitive(self, player_tank, matrix):
+        next_pos = self.next_update_pos()
+        if matrix[next_pos[0]][next_pos[1]] is None:
+            return next_pos
+
+        cw_pos = self.add_lists(
+            self.pos, 
+            self.rotate_direction(self.direction, ACW=False))
+        acw_pos = self.add_lists(
+            self.pos, 
+            self.rotate_direction(self.direction, ACW=True))
+        cw_cell = matrix[cw_pos[0]][cw_pos[1]]        
+        acw_cell = matrix[acw_pos[0]][acw_pos[1]]
+
+        print('cw', cw_cell, 'acw', acw_cell)
+
+        if (cw_cell is None and acw_cell is None) or \
+                (cw_cell is not None and acw_cell is not None):
+            return random.choice([cw_pos, acw_pos])
+        elif cw_cell is None:
+            return cw_pos
+        else:
+            return acw_pos
 
 class FrontTank(AITank):
 
-    def define_end_pos(self, player_tank, matrix):
-        # find pos in front of player tank
-        end_pos = self.add_lists(
-            player_tank.pos,
-            player_tank.direction)
-
-        end_cell = matrix[end_pos[0]][end_pos[1]]
-        if end_cell is not None:
-            end_pos = self.find_free_cell_around_pos(
-                player_tank.pos, 
-                matrix)
-
-        return end_pos
+    def define_next_pos(self, player_tank, matrix):
+        return self.next_pos_to_player(player_tank, matrix)
 
 
 class RearTank(AITank):
 
-    def define_end_pos(self, player_tank, matrix):
-        # find pos in front of player tank
-        end_pos = self.sub_lists(
-            player_tank.pos,
-            player_tank.direction)
+    def define_next_pos(self, player_tank, matrix):
+        return self.next_pos_to_player(player_tank, matrix, rear=True)
 
-        end_cell = matrix[end_pos[0]][end_pos[1]]
-        if end_cell is not None:
-            end_pos = self.find_free_cell_around_pos(
-                player_tank.pos, 
-                matrix)
 
-        return end_pos
-        
+class PrimitiveTank(AITank):
+
+    def define_next_pos(self, player_tank, matrix):
+        return self.next_pos_primitive(player_tank, matrix)

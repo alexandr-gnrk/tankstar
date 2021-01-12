@@ -1,7 +1,7 @@
 import os
 import functools
 
-from tank import Tank, PlayerTank, FrontTank, RearTank
+from tank import Tank, PlayerTank, FrontTank, RearTank, PrimitiveTank
 from obstacle import Obstacle
 from projectile import Projectile
 
@@ -23,16 +23,16 @@ class Model():
     FIELD_TEMPLATE = [
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 1, 0, 1, 0, 1, 0, 0, 1],
+        [1, 0, 1, 1, 1, 0, 1, 1, 0, 1],
+        [1, 0, 0, 0, 1, 0, 0, 1, 0, 1],
+        [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
+        [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
+        [1, 0, 1, 0, 1, 1, 1, 1, 0, 1],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ]
-        
+                
 
 
     def __init__(self):
@@ -43,8 +43,9 @@ class Model():
         self.obstacles = self.make_obstacles_from_template(self.FIELD_TEMPLATE)
         self.tanks = [
             self.player,
-            FrontTank([4, 7]),
-            RearTank([5, 7])
+            FrontTank([4, 8]),
+            RearTank([5, 8]),
+            PrimitiveTank([7, 8]),
         ]
         self.projectiles = list()
         self.update_field_state()
@@ -128,7 +129,7 @@ class Model():
         obj.next_update_action = functools.partial(obj.shoot)
 
     def dump(self):
-        os.system('clear')
+        # os.system('clear')
         def to_char(obj):
             if obj is None:
                 # return '◦'
