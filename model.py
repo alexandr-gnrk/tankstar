@@ -74,7 +74,7 @@ class Model():
         for projectile in self.projectiles:
             positions = [
                 projectile.pos, 
-                projectile.move_pos_by_delta(
+                projectile.add_lists(
                     projectile.pos,
                     projectile.direction)]
             for obstacle in self.obstacles:

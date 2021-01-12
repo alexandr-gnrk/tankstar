@@ -16,14 +16,18 @@ class Tank(GameObject):
         self.direction = self.rotate_direction(self.direction, ACW)
 
     def move(self, backward=False):
-        delta = [-1*x for x in self.direction] if backward else self.direction
-        self.pos = self.move_pos_by_delta(self.pos, delta)
+        if backward:
+            self.pos = self.sub_lists(self.pos, self.direction)
+        else:
+            self.pos = self.add_lists(self.pos, self.direction)
 
     def shoot(self):
         proj = Projectile(self.pos, self.direction)
         proj.move()
         return proj
 
+    def next_update_pos(self):
+        return self.add_lists(self.pos, self.direction)
 
 class PlayerTank(Tank):
     def __init__(self, pos, direction=None):
@@ -48,7 +52,7 @@ class AITank(Tank):
     def find_free_cell_around_pos(cls, pos, matrix):
         diffs = ((1, 0), (-1, 0), (0, 1), (0, -1))
         for diff in diffs:
-            possible_pos = cls.move_pos_by_delta(pos, diff)
+            possible_pos = cls.add_lists(pos, diff)
             if matrix[possible_pos[0]][possible_pos[1]] is None:
                 return possible_pos
 
@@ -65,59 +69,64 @@ class AITank(Tank):
                 else:
                     new_matrix[-1].append(1)
 
-        return new_matrix 
+        return new_matrix
 
-    def define_action(self, next_pos, target_pos):
-        # delta_pos = list(map(operator.sub, self.pos, pos))
-        if next_pos is not None:
-            if self.move_pos_by_delta(self.pos, self.direction) == list(next_pos):
-                return partial(self.move, backward=False)
-
-            antidirection = [-self.direction[0], -self.direction[1]]
-            if self.move_pos_by_delta(self.pos, antidirection) == list(next_pos):
-                return partial(self.move, backward=True)
-
-            delta_pos = list(map(operator.sub, next_pos, self.pos))
-            if self.rotate_direction(self.direction) == delta_pos:
-                return partial(self.turn, ACW=False)
-            elif self.rotate_direction(self.direction, ACW=True) == delta_pos:
-                return partial(self.turn, ACW=True)
+    def get_turn_action(self, new_direction):
+        if self.rotate_direction(self.direction) == new_direction:
+            return partial(self.turn, ACW=False)
+        # elif self.rotate_direction(self.direction, ACW=True) == new_direction:
         else:
-            if self.move_pos_by_delta(self.pos, self.direction) == list(target_pos):
-                return partial(self.shoot)
+            return partial(self.turn, ACW=True)
 
-            delta_pos = list(map(operator.sub, target_pos, self.pos))
-            if self.rotate_direction(self.direction) == delta_pos:
-                return partial(self.turn, ACW=False)
-            elif self.rotate_direction(self.direction, ACW=True) == delta_pos:
-                return partial(self.turn, ACW=True)
+        # raise Exception('It is impossible to turn 180 degrees')
 
-        raise Exception('No possible action found')
+    def get_shoot_action(self):
+        return partial(self.shoot)
 
+    def get_action_according_next_pos(self, next_pos):
+        # delta_pos = list(map(operator.sub, self.pos, pos))
+        if self.add_lists(self.pos, self.direction) == list(next_pos):
+            return partial(self.move, backward=False)
+
+        if self.sub_lists(self.pos, self.direction) == list(next_pos):
+            return partial(self.move, backward=True)
+
+        new_direction = self.sub_lists(next_pos, self.pos)
+        return self.get_turn_action(new_direction)
 
 class FrontTank(AITank):
     def choose_next_update_action(self, matrix):
         self.player_tank = self.find_player(matrix)
-        # find pos in front of player tank
-        end_pos = self.move_pos_by_delta(
-            self.player_tank.pos,
-            self.player_tank.direction)
-        if matrix[end_pos[0]][end_pos[1]] is not None:
-            end_pos = self.find_free_cell_around_pos(
-                self.player_tank.pos, 
-                matrix)
 
-        if self.pos != end_pos:
+        manhattan_distance_to_target = \
+            abs(self.player_tank.pos[0] - self.pos[0]) + \
+            abs(self.player_tank.pos[1] - self.pos[1])
+
+        if manhattan_distance_to_target == 1:
+            if self.next_update_pos() == self.player_tank.pos:
+                self.next_update_action = self.get_shoot_action()
+            else:
+                new_direction = self.sub_lists(self.player_tank.pos, self.pos)
+                self.next_update_action = self.get_turn_action(new_direction)
+        else:
+            # find pos in front of player tank
+            end_pos = self.add_lists(
+                self.player_tank.pos,
+                self.player_tank.direction)
+
+            end_cell = matrix[end_pos[0]][end_pos[1]]
+            if end_cell is not None:
+                end_pos = self.find_free_cell_around_pos(
+                    self.player_tank.pos, 
+                    matrix)
+
             next_pos = AStar(
                 self.pos, 
                 end_pos, 
                 self.covert_to_binary_matrix(matrix)).solve()[0]
-        else:
-            next_pos = None
 
-        self.next_update_action = self.define_action(
-            next_pos,
-            self.player_tank.pos)
+            self.next_update_action = self.get_action_according_next_pos(
+                next_pos)
 
 
 

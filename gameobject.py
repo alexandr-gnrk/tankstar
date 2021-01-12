@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from operator import add
+from operator import add, sub
 
 
 class GameObject(ABC):
@@ -19,8 +19,12 @@ class GameObject(ABC):
         return None
 
     @classmethod
-    def move_pos_by_delta(cls, pos, delta):
+    def add_lists(cls, pos, delta):
         return list(map(add, pos, delta))
+
+    @classmethod
+    def sub_lists(cls, pos, delta):
+        return list(map(sub, pos, delta))
 
     @classmethod
     def rotate_direction(cls, direction, ACW=False):

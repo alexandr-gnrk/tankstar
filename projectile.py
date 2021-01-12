@@ -10,7 +10,7 @@ class Projectile(GameObject):
     def move(self, backward=False):
         if backward == True:
             raise Exception('Bullet can not move backward')
-        self.pos = self.move_pos_by_delta(self.pos, self.direction)
+        self.pos = self.add_lists(self.pos, self.direction)
     
     def choose_next_update_action(self, matrix):
         self.next_update_action = self.move
