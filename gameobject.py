@@ -6,7 +6,7 @@ class GameObject(ABC):
     @abstractmethod
     def __init__(self, pos, direction):
         self.pos = list(pos)
-        self.direction = None if direction is None else list(direction)
+        self.direction = [1, 0] if direction is None else list(direction)
         self.next_update_action = None
 
     @abstractmethod

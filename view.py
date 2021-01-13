@@ -99,15 +99,19 @@ class View():
                     elif event.key == pygame.K_r:
                         self.model.reset()
                     elif event.key == pygame.K_UP:
-                        model.add_move_action(model.player, backward=False)
+                        self.model.add_move_action(
+                            self.model.player, backward=False)
                     elif event.key == pygame.K_DOWN:
-                        model.add_move_action(model.player, backward=True)
+                        self.model.add_move_action(
+                            self.model.player, backward=True)
                     elif event.key == pygame.K_RIGHT:
-                        model.add_turn_action(model.player, ACW=False)
+                        self.model.add_turn_action(
+                            self.model.player, ACW=False)
                     elif event.key == pygame.K_LEFT:
-                        model.add_turn_action(model.player, ACW=True)
+                        self.model.add_turn_action(
+                            self.model.player, ACW=True)
                     elif event.key == pygame.K_SPACE:
-                        model.add_shoot_action(model.player)
+                        self.model.add_shoot_action(self.model.player)
 
             self.redraw()
             if self.is_player_alive() and \
@@ -122,25 +126,3 @@ class View():
 
     def delta_time(self):
         return self.clock.tick(self.fps) / 1000
-    
-
-from model import Model
-
-model = Model()
-View(model).start()
-
-
-
-
-# while True:
-#     for event in pygame.event.get():
-#         pass
-
-#     screen.fill((0, 0, 0))
-#     rect = img.get_rect()
-#     rect.center = 0, 0
-#     screen.blit(img, rect)
-#     # pygame.draw.rect(screen, RED, rect, 1)
-#     pygame.display.update()
-
-# pygame.quit()

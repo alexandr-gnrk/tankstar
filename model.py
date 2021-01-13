@@ -112,7 +112,6 @@ class Model():
                     self.projectiles.remove(projectile)
                     self.projectiles.remove(second_projectile)
 
-
         # remove all actions and actions to move projectiles in the
         # next update call
         for tank in self.tanks: tank.choose_next_update_action(self.field)
@@ -134,7 +133,6 @@ class Model():
         # os.system('clear')
         def to_char(obj):
             if obj is None:
-                # return '◦'
                 return ' '
             elif isinstance(obj, Obstacle):
                 return '▩'
@@ -155,7 +153,6 @@ class Model():
             for j in range(self.size[1]):
                 print(to_char(self.field[i][j]), end=' ')
             print()
-        # print(self.tanks[-1].next_update_action)
 
     def reset(self):
         self.__init__()

@@ -27,10 +27,10 @@ class Tank(GameObject):
         proj = Projectile(self.pos, self.direction)
         proj.move()
         return proj
-        # pass
 
     def next_update_pos(self):
         return self.add_lists(self.pos, self.direction)
+
 
 class PlayerTank(Tank):
     def __init__(self, pos, direction=None):
@@ -49,7 +49,6 @@ class AITank(Tank):
                     return obj
 
         raise Exception('Unable to find player')
-
 
     @classmethod
     def find_free_cell_around_pos(cls, pos, matrix):
@@ -85,15 +84,11 @@ class AITank(Tank):
             return True
         return False
 
-
     def get_turn_action(self, new_direction):
         if self.rotate_direction(self.direction) == new_direction:
             return partial(self.turn, ACW=False)
-        # elif self.rotate_direction(self.direction, ACW=True) == new_direction:
         else:
             return partial(self.turn, ACW=True)
-
-        # raise Exception('It is impossible to turn 180 degrees')
 
     def get_shoot_action(self):
         return partial(self.shoot)
@@ -132,10 +127,6 @@ class AITank(Tank):
         manhattan_distance_to_target = \
             abs(player_tank.pos[0] - self.pos[0]) + \
             abs(player_tank.pos[1] - self.pos[1])
-        # if isinstance(self, PrimitiveTank):
-        #     print(self.pos, player_tank.pos) 
-        #     print(manhattan_distance_to_target)
-
 
         if manhattan_distance_to_target == 1:
             if self.next_update_pos() == player_tank.pos:
@@ -143,7 +134,6 @@ class AITank(Tank):
             else:
                 new_direction = self.sub_lists(player_tank.pos, self.pos)
                 self.next_update_action = self.get_turn_action(new_direction)
-            # print('dist is one')
         else:
             next_pos = self.define_next_pos(player_tank, matrix)
 
@@ -152,8 +142,6 @@ class AITank(Tank):
             else:
                 self.next_update_action = self.get_action_according_next_pos(
                     next_pos)
-
-        # if isinstance(self, PrimitiveTank): print(self.next_update_action)
 
     @abstractmethod
     def define_next_pos(self):
@@ -201,8 +189,6 @@ class AITank(Tank):
             self.rotate_direction(self.direction, ACW=True))
         cw_cell = matrix[cw_pos[0]][cw_pos[1]]        
         acw_cell = matrix[acw_pos[0]][acw_pos[1]]
-
-        # print('cw', cw_cell, 'acw', acw_cell)
 
         if (cw_cell is None and acw_cell is None) or \
                 (cw_cell is not None and acw_cell is not None):
