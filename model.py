@@ -91,15 +91,25 @@ class Model():
                     last_backward_arg = tank.next_update_action.keywords['backward']
                     tank.move(not last_backward_arg)
 
+            positions = [
+                tank.pos, 
+                tank.add_lists(tank.pos, tank.direction)]
+            for second_tank in self.tanks:
+                if tank is not second_tank and second_tank.pos in positions:
+                    try:
+                        last_backward_arg = tank.next_update_action.keywords['backward']
+                        tank.move(not last_backward_arg)
+                    except AttributeError:
+                        last_backward_arg = second_tank.next_update_action.keywords['backward']
+                        second_tank.move(not last_backward_arg)
+
         self.update_field_state()
 
         # move projctiles
         for projectile in self.projectiles:
             positions = [
                 projectile.pos, 
-                projectile.add_lists(
-                    projectile.pos,
-                    projectile.direction)]
+                projectile.add_lists(projectile.pos, projectile.direction)]
             for obstacle in self.obstacles:
                 if obstacle.pos == projectile.pos:
                     self.projectiles.remove(projectile)
