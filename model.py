@@ -91,11 +91,8 @@ class Model():
                     last_backward_arg = tank.next_update_action.keywords['backward']
                     tank.move(not last_backward_arg)
 
-            positions = [
-                tank.pos, 
-                tank.add_lists(tank.pos, tank.direction)]
             for second_tank in self.tanks:
-                if tank is not second_tank and second_tank.pos in positions:
+                if tank is not second_tank and second_tank.pos == tank.pos:
                     try:
                         last_backward_arg = tank.next_update_action.keywords['backward']
                         tank.move(not last_backward_arg)
