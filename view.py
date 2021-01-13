@@ -12,7 +12,7 @@ class View():
     FPS = 30
     UPDATE_TIME_DELAY = (1/5)*1000
 
-    SPRITE_LEN = 64
+    SPRITE_LEN = 40
     SPRITE_SIZE = (SPRITE_LEN, SPRITE_LEN)
 
     def __init__(self, model):
