@@ -60,7 +60,7 @@ class Model():
 
     def update_field_state(self):
         self.field = [[None] * self.size[0] for _ in range(self.size[1])]
-        objs = self.tanks + self.obstacles + self.projectiles
+        objs = self.tanks + self.projectiles + self.obstacles 
         for obj in objs:
             self.field[obj.pos[0]][obj.pos[1]] = obj
 
@@ -72,11 +72,14 @@ class Model():
 
     def update(self):
         # eval actions
+        for projectile in self.projectiles: projectile.make_action()
+
         new_projectiles = list()
         for tank in self.tanks:
             obj = tank.make_action()
             if obj is not None:
-                new_projectiles.append(obj)
+                # new_projectiles.append(obj)
+                self.projectiles.append(obj)
 
         # move tanks
         for tank in self.tanks:
@@ -84,6 +87,8 @@ class Model():
                 if tank.pos == obstacle.pos:
                     last_backward_arg = tank.next_update_action.keywords['backward']
                     tank.move(not last_backward_arg)
+
+        self.update_field_state()
 
         # move projctiles
         for projectile in self.projectiles:
@@ -93,7 +98,7 @@ class Model():
                     projectile.pos,
                     projectile.direction)]
             for obstacle in self.obstacles:
-                if obstacle.pos in positions:
+                if obstacle.pos == projectile.pos:
                     self.projectiles.remove(projectile)
 
             for tank in self.tanks:
@@ -107,9 +112,6 @@ class Model():
                     self.projectiles.remove(projectile)
                     self.projectiles.remove(second_projectile)
 
-        for projectile in self.projectiles: projectile.make_action()
-
-        self.update_field_state()
 
         # remove all actions and actions to move projectiles in the
         # next update call
@@ -154,3 +156,6 @@ class Model():
                 print(to_char(self.field[i][j]), end=' ')
             print()
         # print(self.tanks[-1].next_update_action)
+
+    def reset(self):
+        self.__init__()

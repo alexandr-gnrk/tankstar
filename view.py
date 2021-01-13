@@ -10,6 +10,7 @@ class View():
     BACKGROUND_COLOR = (0, 0, 0)
 
     FPS = 30
+    UPDATE_TIME_DELAY = (1/5)*1000
 
     SPRITE_LEN = 64
     SPRITE_SIZE = (SPRITE_LEN, SPRITE_LEN)
@@ -26,6 +27,7 @@ class View():
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode((self.width, self.height))
         self.clock = pygame.time.Clock()
+        self.time_from_last_update = 0
 
         self.imgs = {
             'brick': pygame.transform.scale(
@@ -56,8 +58,7 @@ class View():
 
                 img = self.obj_to_img(obj)
                 rect = img.get_rect()
-                # rect.center = i*self.SPRITE_LEN, j*self.SPRITE_LEN
-                rect.center = j*self.SPRITE_LEN, i*self.SPRITE_LEN
+                rect.topleft = j*self.SPRITE_LEN, i*self.SPRITE_LEN
                 self.screen.blit(img, rect)
 
         pygame.display.flip()
@@ -83,28 +84,41 @@ class View():
         rotated_img = pygame.transform.rotate(img, degrees)
         return rotated_img
 
+    def is_player_alive(self):
+        return isinstance(self.model.tanks[0], PlayerTank)
+
     def start(self):
         """Start game loop."""
         while True:
-            events = pygame.event.get()
-            for event in events:
+            for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     exit()
-                # if event.type == pygame.KEYDOWN:
-                #     if event.key in vector_map:
-                #         self.moving_direction += vector_map[event.key]
-                # if event.type == pygame.KEYUP:
-                #     if event.key in vector_map:
-                #         self.moving_direction -= vector_map[event.key]
-                # if event.type == pygame.MOUSEBUTTONDOWN:
-                #     self.model.shoot(self.camera)
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q:
+                        exit()
+                    elif event.key == pygame.K_r:
+                        self.model.reset()
+                    elif event.key == pygame.K_UP:
+                        model.add_move_action(model.player, backward=False)
+                    elif event.key == pygame.K_DOWN:
+                        model.add_move_action(model.player, backward=True)
+                    elif event.key == pygame.K_RIGHT:
+                        model.add_turn_action(model.player, ACW=False)
+                    elif event.key == pygame.K_LEFT:
+                        model.add_turn_action(model.player, ACW=True)
+                    elif event.key == pygame.K_SPACE:
+                        model.add_shoot_action(model.player)
 
             self.redraw()
-            self.update()
-            self.clock.tick(self.FPS)
+            if self.is_player_alive() and \
+                    self.time_from_last_update >= self.UPDATE_TIME_DELAY:
+                self.update()
+                self.time_from_last_update = 0
+
+            self.time_from_last_update += self.clock.tick(self.FPS)
 
     def update(self):
-        pass
+        self.model.update()
 
     def delta_time(self):
         return self.clock.tick(self.fps) / 1000

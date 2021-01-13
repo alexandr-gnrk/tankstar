@@ -132,9 +132,9 @@ class AITank(Tank):
         manhattan_distance_to_target = \
             abs(player_tank.pos[0] - self.pos[0]) + \
             abs(player_tank.pos[1] - self.pos[1])
-        if isinstance(self, PrimitiveTank):
-            print(self.pos, player_tank.pos) 
-            print(manhattan_distance_to_target)
+        # if isinstance(self, PrimitiveTank):
+        #     print(self.pos, player_tank.pos) 
+        #     print(manhattan_distance_to_target)
 
 
         if manhattan_distance_to_target == 1:
@@ -143,7 +143,7 @@ class AITank(Tank):
             else:
                 new_direction = self.sub_lists(player_tank.pos, self.pos)
                 self.next_update_action = self.get_turn_action(new_direction)
-            print('dist is one')
+            # print('dist is one')
         else:
             next_pos = self.define_next_pos(player_tank, matrix)
 
@@ -153,7 +153,7 @@ class AITank(Tank):
                 self.next_update_action = self.get_action_according_next_pos(
                     next_pos)
 
-        if isinstance(self, PrimitiveTank): print(self.next_update_action)
+        # if isinstance(self, PrimitiveTank): print(self.next_update_action)
 
     @abstractmethod
     def define_next_pos(self):
@@ -202,7 +202,7 @@ class AITank(Tank):
         cw_cell = matrix[cw_pos[0]][cw_pos[1]]        
         acw_cell = matrix[acw_pos[0]][acw_pos[1]]
 
-        print('cw', cw_cell, 'acw', acw_cell)
+        # print('cw', cw_cell, 'acw', acw_cell)
 
         if (cw_cell is None and acw_cell is None) or \
                 (cw_cell is not None and acw_cell is not None):
